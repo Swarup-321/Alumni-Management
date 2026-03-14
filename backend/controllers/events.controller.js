@@ -43,3 +43,14 @@ exports.registerEvent = async (req, res) => {
     res.status(500).json({ message: 'Already registered or error', error: err.message });
   }
 };
+
+// ✅ NEW - Delete Event
+exports.deleteEvent = async (req, res) => {
+  try {
+    await db.execute(`DELETE FROM events WHERE event_id = ?`, [req.params.id]);
+    res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    console.error('❌ deleteEvent error:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+};

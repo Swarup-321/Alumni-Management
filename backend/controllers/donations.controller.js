@@ -2,44 +2,53 @@ const db = require('../config/db');
 
 exports.getAllDonations = async (req, res) => {
   try {
-    const [rows] = await db.execute(
-      `SELECT d.*, ap.full_name as donor_name
-       FROM donations d
-       JOIN users u ON u.user_id = d.donor_id
-       JOIN alumni_profiles ap ON ap.user_id = u.user_id
-       ORDER BY d.donated_at DESC`
-    );
+    const [rows] = await db.execute(`
+      SELECT d.*, u.email, ap.full_name
+      FROM donations d
+      LEFT JOIN users u ON d.donor_id = u.user_id
+      LEFT JOIN alumni_profiles ap ON d.donor_id = ap.user_id
+      ORDER BY d.donated_at DESC
+    `);
     res.json(rows);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching donations', error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.getDonationStats = async (req, res) => {
+exports.getUserDonations = async (req, res) => {
   try {
-    const [stats] = await db.execute(
-      `SELECT 
-        COUNT(*) as total_donations,
-        SUM(amount) as total_amount,
-        AVG(amount) as avg_amount,
-        MAX(amount) as max_donation
-       FROM donations`
-    );
-    res.json(stats[0]);
+    const [rows] = await db.execute(`
+      SELECT d.*, u.email, ap.full_name
+      FROM donations d
+      LEFT JOIN users u ON d.donor_id = u.user_id
+      LEFT JOIN alumni_profiles ap ON d.donor_id = ap.user_id
+      WHERE d.donor_id = ?
+      ORDER BY d.donated_at DESC
+    `, [req.params.user_id]);
+    res.json(rows);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching stats', error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
 exports.createDonation = async (req, res) => {
   try {
-    const { donor_id, amount, purpose, payment_mode } = req.body;
-    const [result] = await db.execute(
+    const { user_id, amount, purpose, payment_mode } = req.body;
+    await db.execute(
       `INSERT INTO donations (donor_id, amount, purpose, payment_mode) VALUES (?, ?, ?, ?)`,
-      [donor_id, amount, purpose, payment_mode]
+      [user_id, amount, purpose, payment_mode || 'UPI']
     );
-    res.status(201).json({ message: 'Donation recorded', donation_id: result.insertId });
+    res.json({ message: 'Donation created successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Error recording donation', error: err.message });
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.deleteDonation = async (req, res) => {
+  try {
+    await db.execute(`DELETE FROM donations WHERE donation_id = ?`, [req.params.id]);
+    res.json({ message: 'Donation deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

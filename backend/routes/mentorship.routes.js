@@ -1,6 +1,7 @@
 const express = require('express');
-const router = express.Router();
 const { getAllMentorships, createMentorship } = require('../controllers/mentorship.controller');
+
+const router = express.Router();
 
 router.get('/', getAllMentorships);
 router.post('/', createMentorship);

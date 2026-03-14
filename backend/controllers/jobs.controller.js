@@ -41,3 +41,17 @@ exports.applyJob = async (req, res) => {
     res.status(500).json({ message: 'Already applied or error', error: err.message });
   }
 };
+
+// ✅ NEW - Delete Job
+exports.deleteJob = async (req, res) => {
+  try {
+    await db.execute(
+      `UPDATE job_postings SET is_active = false WHERE job_id = ?`,
+      [req.params.id]
+    );
+    res.json({ message: 'Job deleted successfully' });
+  } catch (err) {
+    console.error('❌ deleteJob error:', err.message);
+    res.status(500).json({ message: err.message });
+  }
+};

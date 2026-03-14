@@ -1,9 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getAllDonations, getDonationStats, createDonation } = require('../controllers/donations.controller');
+const {
+  getAllDonations,
+  getUserDonations,
+  createDonation,
+  deleteDonation
+} = require('../controllers/donations.controller');
 
 router.get('/', getAllDonations);
-router.get('/stats', getDonationStats);
+router.get('/user/:user_id', getUserDonations);
 router.post('/', createDonation);
+router.delete('/:id', deleteDonation);
 
 module.exports = router;

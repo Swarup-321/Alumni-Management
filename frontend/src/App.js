@@ -9,14 +9,17 @@ import DonationsPage from './pages/DonationsPage';
 import MentorshipPage from './pages/MentorshipPage';
 import Sidebar from './components/Sidebar';
 
-
 function App() {
   const [role, setRole] = useState(localStorage.getItem('role'));
 
-  const handleLogin = (userRole) => setRole(userRole);
+  const handleLogin = (userRole) => {
+    setRole(userRole);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('user_id');  // ✅ important for donations/profile
     setRole(null);
   };
 
@@ -24,9 +27,9 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f2f5' }}>
         <Sidebar onLogout={handleLogout} role={role} />
-        <div style={{ flex: 1, padding: 24, marginLeft: 220 }}>
+        <div style={{ flex: 1, padding: 24, marginLeft: 220, maxWidth: 'calc(100vw - 220px)', overflowX: 'auto' }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/alumni" element={<AlumniPage />} />
